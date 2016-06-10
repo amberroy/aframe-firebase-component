@@ -46,13 +46,6 @@ AFRAME.registerSystem('firebase', {
     firebase.database().ref('entities').on('child_removed', function (data) {
       self.handleEntityRemoved(data.key);
     });
-
-    window.addEventListener('beforeunload', function () {
-      self.handleExit();
-    });
-    window.addEventListener('pagehide', function () {
-      self.handleExit();
-    });
   },
 
   /**
@@ -117,6 +110,7 @@ AFRAME.registerSystem('firebase', {
 
   /**
    * Delete all broadcasting entities.
+   * (currently unused, handled by Firebase onDisconnect)
    */
   handleExit: function () {
     var self = this;
@@ -136,6 +130,8 @@ AFRAME.registerSystem('firebase', {
     var id = database.ref().child('entities').push().key;
     el.setAttribute('firebase-broadcast', 'id', id);
     broadcastingEntities[id] = el;
+    // Remove entry when this clients disconnects. 
+    database.ref().child('entities').child(id).onDisconnect().remove();
   },
 
   /**
