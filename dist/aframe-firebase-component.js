@@ -51,6 +51,8 @@
 	  throw new Error('Component attempted to register before AFRAME was available.');
 	}
 
+	var channelQueryParam = parse(location.href, true).query['aframe-firebase-channel'];
+
 	/**
 	 * Firebase system.
 	 */
@@ -66,15 +68,7 @@
 
 	    if (!config) { return; }
 
-	    this.channel = 'default';
-	    if (config.channel) {
-	      this.channel = config.channel;
-	    }
-	    var url = parse(location.href, true);
-	    if (url.query && url.query['aframe-firebase-channel']) {
-	      this.channel = url.query['aframe-firebase-channel'];
-	    }
-
+	    this.channel = channelQueryParam || config.channel || 'default';
 	    this.firebase = firebase.initializeApp(config);
 	    this.database = firebase.database().ref(this.channel);
 
@@ -167,7 +161,7 @@
 	    var self = this;
 	    Object.keys(this.broadcastingEntities).forEach(function (id) {
 	      delete self.broadcastingEntities[id];
-	      this.database.child('entities/' + id).remove();
+	      self.database.child('entities/' + id).remove();
 	    });
 	  },
 
